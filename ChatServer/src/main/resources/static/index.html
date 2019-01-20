@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello WebSocket</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/main.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/app.js"></script>
+</head>
+<body>
+<noscript>
+    <h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
+        enabled. Please enable
+        Javascript and reload this page!</h2>
+</noscript>
+
+<nav class="nav fixed-top" style="background-color: #cccccc;">
+    <div class="container" style="max-width: 620px;margin-right: auto;margin-left: auto;">
+        <h1>WebChat</h1>
+        <h5 name="header" id="header"></h5>
+    </div>
+</nav>
+<div class="py-3 fixed-bottom" id="sendarea" style="display:none; background-color: #cccccc; ">
+    <form class="container form-inline" style="max-width: 620px;margin-right: auto;margin-left: auto;">
+        <input id="message" class="form-control m-1 d-inline-block" type="text" style="width: calc(100% - 220px)">
+
+        <div class="float-right d-inline-block">
+
+            <button id="send" class="btn btn-outline-primary m-1" type="submit">Send</button>
+            <button id="leave" class="btn btn-outline-info m-1" type="submit">Leave
+            </button>
+            <button id="exit" class="btn btn-outline-danger m-1" type="submit">Exit</button>
+        </div>
+
+    </form>
+</div>
+
+<div id="main-content" class="container" style="max-width: 620px;margin-right: auto;
+    margin-left: auto;">
+
+    <div class="" id="regarea" style="margin-top: 90px;margin-bottom: 90px">
+        <form class="form-inline">
+            <div class="form-group m-1">
+                <input type="text" id="name" class="form-control" placeholder="Your name here...">
+            </div>
+            <div class="form-group m-1">
+                <select id="role" class="form-control">
+                    <option class="form-control" value="CLIENT">Client</option>
+                    <option class="form-control" value="AGENT">Agent</option>
+                </select>
+            </div>
+            <button id="register" class="btn btn-outline-success m-1" type="submit">Register</button>
+        </form>
+    </div>
+
+
+    <div class="row my-6" style="margin-top: 90px; margin-bottom: 90px">
+        <div class="col-md-12">
+            <table id="conversation" class="table table-striped">
+                <tbody id="greetings">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
