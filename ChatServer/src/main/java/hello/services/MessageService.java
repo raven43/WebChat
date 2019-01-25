@@ -1,8 +1,8 @@
 package hello.services;
 
+import chat.common.Role;
+import chat.common.message.ChatMessage;
 import hello.model.ChatUser;
-import hello.model.Role;
-import hello.model.message.ChatMessage;
 import hello.repo.ChatRepo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,7 @@ public class MessageService {
 
     public void handleMessage(String senderId, ChatMessage message) {
         ChatUser user = repo.getUser(senderId);
+        user.active();
         if (!user.isFree()) {
             if (user.getRole().equals(Role.CLIENT)) user.getMessageHistory().add(message);
             else user.getCompanion().getMessageHistory().add(message);
@@ -96,7 +97,7 @@ public class MessageService {
         ChatUser user = repo.getUser(id);
         if (!user.isFree()) {
             log.info("Stop chat btw " + user.getRole().str + " [" + user.getName() + "] and " +
-                    user.getCompanion().getRole().str + " [" + user.getCompanion().getName() + "]: "+user.getRole().str+" exit");
+                    user.getCompanion().getRole().str + " [" + user.getCompanion().getName() + "]: " + user.getRole().str + " exit");
             ChatUser orphan = user.breakChat();
             template.convertAndSendToUser(orphan.getId(), USER_DEST, new ChatMessage("Your " + user.getRole().str + " exit"));
             findCompanion(orphan);
@@ -105,17 +106,18 @@ public class MessageService {
         else if (user.getRole().equals(Role.AGENT))
             repo.getFreeAgentQ().remove(user);
 
-        log.info("Exit user "+ user);
+        log.info("Exit user " + user);
         repo.removeUser(id);
 
     }
 
     public void handleLeave(String id) {
         ChatUser user = repo.getUser(id);
+        user.active();
         if (!user.getMessageHistory().isEmpty()) {
             template.convertAndSendToUser(user.getId(), USER_DEST, new ChatMessage("You leave the chat"));
             if (!user.isFree() && user.getRole().equals(Role.CLIENT)) {
-                log.info("Stop chat btw agent [" + user.getCompanion().getName() + "] and client [" + user.getName()+"]: Client leave");
+                log.info("Stop chat btw agent [" + user.getCompanion().getName() + "] and client [" + user.getName() + "]: Client leave");
 
                 ChatUser orphan = user.breakChat();
                 template.convertAndSendToUser(orphan.getId(), USER_DEST, new ChatMessage("You client leave the chat"));

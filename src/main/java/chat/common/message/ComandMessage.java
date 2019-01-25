@@ -1,4 +1,4 @@
-package hello.model.message;
+package chat.common.message;
 
 import java.util.Map;
 

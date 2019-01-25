@@ -1,6 +1,9 @@
 package chat.client;
 
+import chat.common.Role;
+import chat.common.message.ChatMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -20,6 +23,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ClientApp {
+
+    private static Logger logger = Logger.getLogger(ClientApp.class);
+
 
     private static WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
     private static ObjectMapper mapper = new ObjectMapper();
@@ -54,7 +60,7 @@ public class ClientApp {
                 try {
                     ChatMessage message = mapper.readValue(new String((byte[]) o), ChatMessage.class);
                     if (!name.equals(message.getName()) && !role.equals(message.getRole()))
-                        System.out.println(message);
+                        logger.info(message);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -65,7 +71,7 @@ public class ClientApp {
 
     private class MyHandler extends StompSessionHandlerAdapter {
         public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
-            System.out.println("Successful connect");
+            logger.info("Successful connect");
         }
 
     }
@@ -74,19 +80,19 @@ public class ClientApp {
         boolean registered = false;
         name = null;
         role = null;
-        System.out.println("Please register:");
+        logger.info("Please register:");
         do {
             String regline = in.nextLine();
-            if (regline.contains("/register agent ")) {
+            if (regline.contains("/register agent ") && regline.length() > 16) {
                 role = Role.AGENT;
                 name = regline.trim().substring(16);
                 registered = true;
-            } else if (regline.contains("/register client ")) {
+            } else if (regline.contains("/register client ") && regline.length() > 17) {
                 role = Role.CLIENT;
                 name = regline.trim().substring(17);
                 registered = true;
             } else
-                System.out.println("Try again...");
+                logger.info("Try again...");
         } while (!registered);
     }
 
@@ -96,15 +102,15 @@ public class ClientApp {
                 if (line.contains("/exit")) {
                     stompSession.disconnect();
                     return false;
-                }else {
-                    stompSession.send("/message", String.format(MESSAGE_FORMAT,name, role, line).getBytes());
+                } else {
+                    stompSession.send("/message", String.format(MESSAGE_FORMAT, name, role, line).getBytes());
                     return true;
                 }
             case CLIENT:
                 if (line.contains("/exit")) {
                     stompSession.disconnect();
                     return false;
-                }else if (line.contains("/leave")) {
+                } else if (line.contains("/leave")) {
                     stompSession.send("/command", LEAVE_COMAND.getBytes());
                     return true;
                 } else {

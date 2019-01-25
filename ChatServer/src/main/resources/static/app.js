@@ -85,9 +85,8 @@ function showMessage(message) {
     var name = JSON.parse(message.body).name;
     var content = JSON.parse(message.body).content;
 
-    var show = '<b>'+(role==null?'':role)+' '+(name==null?'':name+': ')+'</b> '+content;
-
-    $("#greetings").append("<tr><td>" + show + "</td></tr>");
+    var show = "<tr><td style='width: 20%'><b>" + (role == null ? '' : role) + " " + (name == null ? '' : name + ': ') + "</b></td><td>" + content + "</td></tr>"
+    $("#greetings").append(show);
     window.scrollTo(0,document.body.scrollHeight);
 }
 
@@ -101,7 +100,8 @@ $(function () {
         sendMessage();
     });
     $("#register").click(function () {
-        register();
+        if ($("#name").val() !== "")
+            register();
     });
     $("#leave").click(function () {
         leave();

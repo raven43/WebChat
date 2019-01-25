@@ -1,14 +1,13 @@
 package hello.config;
 
+import chat.common.Role;
 import hello.model.ChatUser;
-import hello.model.Role;
 import hello.services.MessageService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -47,32 +46,42 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @EventListener
     public void handleSubscribeEvent(SessionSubscribeEvent event) {
-        if (((LinkedList) ((Map) event.getMessage().getHeaders().get("nativeHeaders")).get("destination")).get(0)
-                .equals("/private/reply")
-        )
-            service.activateUser(event.getUser().getName());
+        try {
+            if (((LinkedList) ((Map) event.getMessage().getHeaders().get("nativeHeaders")).get("destination")).get(0)
+                    .equals("/private/reply")
+            )
+                //"activate" user. There is some delay btw connecting and subscribing to personal channel
+                service.activateUser(event.getUser().getName());
+        } catch (Exception e) {
+            log.warn("Incorrect subscribe " + e.getMessage());
+        }
     }
 
     @EventListener
     public void handleConnectEvent(SessionConnectEvent event) {
+        try {
+            log.info("Connect user " + event.getUser().getName());
+            //register user by stomp headers
+            if (((Map<String, Object>) event.getMessage().getHeaders().get("nativeHeaders")).containsKey("role")) {
 
-        log.info("Connect user "+event.getUser().getName());
-        if (((Map<String, Object>) event.getMessage().getHeaders().get("nativeHeaders")).containsKey("role")){
+                Map<String, Object> headers = (Map<String, Object>) event.getMessage().getHeaders().get("nativeHeaders");
 
-            Map<String, Object> headers = (Map<String, Object>) event.getMessage().getHeaders().get("nativeHeaders");
+                Role role = Role.valueOf((String) ((LinkedList) headers.get("role")).get(0));
+                String name = (String) ((LinkedList) headers.get("name")).get(0);
 
-            Role role = Role.valueOf((String) ((LinkedList) headers.get("role")).get(0));
-            String name = (String) ((LinkedList) headers.get("name")).get(0);
-
-            String id = event.getUser().getName();
-            ChatUser user = new ChatUser(id, name, role);
-            service.handleRegister(user);
+                String id = event.getUser().getName();
+                ChatUser user = new ChatUser(id, name, role);
+                service.handleRegister(user);
+            }
+        } catch (Exception e) {
+            log.warn("Incorrect connect " + e.getMessage());
         }
 
     }
 
     @EventListener
     public void handleDisconnectEvent(SessionDisconnectEvent event) {
+
         log.info("Disconnect user " + event.getUser().getName());
         service.handleExit(event.getUser().getName());
     }

@@ -1,34 +1,29 @@
 package hello.model;
 
-import hello.model.message.ChatMessage;
+import chat.common.Role;
+import chat.common.message.ChatMessage;
 
+import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ChatUser {
-
-
 
     private String id;
     private String name;
     private Role role;
     private ChatUser companion;
     private Queue<ChatMessage> messageHistory;
-
-    public ChatUser() {
-        messageHistory = new ConcurrentLinkedQueue<>();
-    }
-
-    public ChatUser(String id) {
-        this.id = id;
-        messageHistory = new ConcurrentLinkedQueue<>();
-    }
+    private Date registerTime;
+    private Date lastActive;
 
     public ChatUser(String id, String name, Role role) {
         this.id = id;
         this.name = name;
         this.role = role;
         messageHistory = new ConcurrentLinkedQueue<>();
+        registerTime = new Date();
+        lastActive = registerTime;
     }
 
     public String getId() {
@@ -43,24 +38,12 @@ public class ChatUser {
         return companion;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
 
     public Queue<ChatMessage> getMessageHistory() {
         return messageHistory;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 
     public void setCompanion(ChatUser companion) {
@@ -78,12 +61,26 @@ public class ChatUser {
         return comp;
     }
 
+    public Date getRegisterTime() {
+        return registerTime;
+    }
+
+    public Date getLastActive() {
+        return lastActive;
+    }
+
+    public void active() {
+        lastActive = new Date();
+    }
+
     @Override
     public String toString() {
         return "ChatUser{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", role=" + role +
+                ", " + role +
+                " " + name +
+                ", register=" + registerTime +
+                ", active=" + lastActive +
                 '}';
     }
 }

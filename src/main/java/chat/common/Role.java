@@ -1,4 +1,4 @@
-package hello.model;
+package chat.common;
 
 public enum Role {
     AGENT("Agent"),CLIENT("Client");

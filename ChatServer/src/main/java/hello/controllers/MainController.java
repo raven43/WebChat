@@ -1,7 +1,7 @@
 package hello.controllers;
 
-import hello.model.message.ChatMessage;
-import hello.model.message.ComandMessage;
+import chat.common.message.ChatMessage;
+import chat.common.message.ComandMessage;
 import hello.repo.ChatRepo;
 import hello.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -18,7 +18,7 @@ public class Handshaker extends DefaultHandshakeHandler {
             Map<String, Object> attributes
     ) {
         final String name;
-
+        //generate id for the current session
         if (!attributes.containsKey(ATTR_PRINCIPAL)) {
             name = generateRandomUsername();
             attributes.put(ATTR_PRINCIPAL, name);

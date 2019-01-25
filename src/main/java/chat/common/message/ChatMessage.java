@@ -1,6 +1,6 @@
-package hello.model.message;
+package chat.common.message;
 
-import hello.model.Role;
+import chat.common.Role;
 
 public class ChatMessage {
 
@@ -44,5 +44,8 @@ public class ChatMessage {
         this.content = content;
     }
 
-
+    @Override
+    public String toString() {
+        return (role != null ? role + " " : "") + (name != null ? name + ": " : "") + content;
+    }
 }
