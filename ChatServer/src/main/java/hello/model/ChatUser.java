@@ -36,6 +36,9 @@ public class ChatUser {
         lastActive = registerTime;
     }
 
+    public void send(ChatMessage message) {
+    }
+
     public String getId() {
         return id;
     }

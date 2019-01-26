@@ -9,6 +9,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class Chat {
+
+    private static long counter = 0;
+
+    private long id;
     private ChatUser agent;
     private ChatUser client;
     private final Date clientRequestTime;
@@ -17,6 +21,7 @@ public class Chat {
     private Queue<ChatMessage> messageHistory;
 
     public Chat(ChatUser client, ChatMessage startMessage) {
+        this.id = counter++;
         this.client = client;
         this.clientRequestTime = new Date();
         this.messageHistory = new ConcurrentLinkedQueue<>();
@@ -27,6 +32,16 @@ public class Chat {
         this.agent = agent;
         //TODO send messages to agent
         this.startTime = new Date();
+    }
+
+    public void sendMessageToAgent(ChatMessage message) {
+        messageHistory.add(message);
+        agent.send(message);
+    }
+
+
+    public long getId() {
+        return id;
     }
 
     public ChatUser getAgent() {
