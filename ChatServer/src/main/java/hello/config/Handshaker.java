@@ -35,7 +35,7 @@ public class Handshaker extends DefaultHandshakeHandler {
     }
 
     private String generateRandomUsername() {
-        return UUID.randomUUID().toString();
+        return String.valueOf(UUID.randomUUID().getMostSignificantBits());
     }
 
 }

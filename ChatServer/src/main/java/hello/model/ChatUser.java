@@ -2,19 +2,29 @@ package hello.model;
 
 import chat.common.Role;
 import chat.common.message.ChatMessage;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+
 public class ChatUser {
 
+    @JsonView(Summary.class)
     private String id;
+    @JsonView(Summary.class)
     private String name;
+    @JsonView(Summary.class)
     private Role role;
+    @JsonIgnore
     private ChatUser companion;
+    @JsonView(Detail.class)
     private Queue<ChatMessage> messageHistory;
+    @JsonView(Detail.class)
     private Date registerTime;
+    @JsonView(Detail.class)
     private Date lastActive;
 
     public ChatUser(String id, String name, Role role) {
@@ -38,6 +48,11 @@ public class ChatUser {
         return companion;
     }
 
+    @JsonView(Detail.class)
+    public String getCompanionId() {
+        return isFree() ? null : companion.id;
+    }
+
     public String getName() {
         return name;
     }
@@ -50,6 +65,7 @@ public class ChatUser {
         this.companion = companion;
     }
 
+    @JsonView(Summary.class)
     public boolean isFree() {
         return companion == null;
     }
@@ -82,5 +98,11 @@ public class ChatUser {
                 ", register=" + registerTime +
                 ", active=" + lastActive +
                 '}';
+    }
+
+    public static class Detail extends Summary {
+    }
+
+    public static class Summary {
     }
 }
