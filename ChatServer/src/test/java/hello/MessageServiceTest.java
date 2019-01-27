@@ -2,7 +2,8 @@ package hello;
 
 import chat.common.Role;
 import chat.common.message.ChatMessage;
-import hello.model.ChatUser;
+import hello.model.MessageRepo;
+import hello.model.user.ChatUser;
 import hello.repo.ChatRepo;
 import hello.services.MessageService;
 import org.junit.After;
@@ -17,12 +18,14 @@ public class MessageServiceTest {
     private ChatRepo repo;
     private MessageService service;
     private SimpMessagingTemplateTestImpl template;
+    private MessageRepo messageRepo;
 
     @Before
     public void setUp() {
         template = new SimpMessagingTemplateTestImpl();
         repo = new ChatRepo();
-        service = new MessageService(repo, template);
+        messageRepo = new MessageRepo();
+        service = new MessageService(repo, template, messageRepo);
     }
 
     @After
@@ -68,7 +71,7 @@ public class MessageServiceTest {
 
         ChatUser agent = new ChatUser(agentId, "Cooper", Role.AGENT);
         ChatUser client = new ChatUser(clientId, "Alice", Role.CLIENT);
-        client.getMessageHistory().add(new ChatMessage("Alice", "Help"));
+        client.getChat().getMessageHistory().add(new ChatMessage("Alice", "Help"));
         service.handleRegister(agent);
         service.activateUser(agentId);
         Assert.assertEquals(1, service.getRepo().getFreeAgentQ().size());
@@ -94,7 +97,7 @@ public class MessageServiceTest {
         ChatUser agent1 = new ChatUser(agent1Id, "Cooper", Role.AGENT);
         ChatUser agent2 = new ChatUser(agent2Id, "Smith", Role.AGENT);
         ChatUser client = new ChatUser(clientId, "Alice", Role.CLIENT);
-        client.getMessageHistory().add(new ChatMessage("Alice", "Help"));
+        client.getChat().getMessageHistory().add(new ChatMessage("Alice", "Help"));
         service.handleRegister(agent1);
         service.handleRegister(agent2);
         service.activateUser(agent1Id);

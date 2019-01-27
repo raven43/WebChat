@@ -3,6 +3,7 @@ package hello.model;
 import chat.common.message.ChatMessage;
 import chat.common.message.View;
 import com.fasterxml.jackson.annotation.JsonView;
+import hello.model.user.ChatUser;
 
 import java.util.Date;
 import java.util.Queue;

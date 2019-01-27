@@ -24,6 +24,12 @@ public class ChatMessage {
         this.content = content;
     }
 
+    public ChatMessage(String name, Role role, String content) {
+        this.name = name;
+        this.role = role;
+        this.content = content;
+    }
+
     public String getName() {
         return name;
     }

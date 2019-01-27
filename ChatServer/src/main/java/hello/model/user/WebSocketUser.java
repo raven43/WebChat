@@ -1,4 +1,4 @@
-package hello.model;
+package hello.model.user;
 
 import chat.common.Role;
 

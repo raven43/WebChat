@@ -3,9 +3,8 @@ package hello.services;
 import chat.common.Role;
 import chat.common.message.ChatMessage;
 import hello.model.ChatRoom;
-import hello.model.ChatUser;
-import hello.model.HttpUser;
-import hello.model.WebSocketUser;
+import hello.model.MessageRepo;
+import hello.model.user.ChatUser;
 import hello.repo.ChatRepo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +20,25 @@ public class MessageService {
     private static final String USER_DEST = "/reply";
     private ChatRepo repo;
     private SimpMessagingTemplate template;
+    private MessageRepo messageRepo;
 
     @Autowired
-    public MessageService(ChatRepo repo, SimpMessagingTemplate template) {
+    public MessageService(
+            ChatRepo repo,
+            SimpMessagingTemplate template,
+            MessageRepo messageRepo
+    ) {
         this.repo = repo;
         this.template = template;
+        this.messageRepo = messageRepo;
     }
+
+    public void handleMessage(Long senderId, String message) {
+        ChatUser user = repo.getUser(senderId);
+        ChatMessage chatMessage = new ChatMessage(user.getName(), user.getRole(), message);
+        handleMessage(senderId, chatMessage);
+    }
+
 
     public void handleMessage(Long senderId, ChatMessage message) {
         ChatUser user = repo.getUser(senderId);
@@ -54,11 +66,17 @@ public class MessageService {
     }
 
     private void send(ChatUser user, ChatMessage message) {
-        if (user instanceof WebSocketUser)
-            template.convertAndSendToUser(String.valueOf(user.getId()), USER_DEST, message);
-        else if (user instanceof HttpUser) ((HttpUser) user).addMessage(message);
-        else log.warn("Unrecognased user " + user);
-
+        switch (user.getConnectionType()) {
+            case "WebSocket":
+                template.convertAndSendToUser(String.valueOf(user.getId()), USER_DEST, message);
+                break;
+            case "HTTP":
+                messageRepo.addMessage(user.getId(), message);
+                break;
+            default:
+                log.warn("Unrecognased user " + user);
+                break;
+        }
     }
 
     public void findCompanion(ChatUser user) {

@@ -1,8 +1,8 @@
 package hello.config;
 
 import chat.common.Role;
-import hello.model.ChatUser;
-import hello.model.WebSocketUser;
+import hello.model.user.ChatUser;
+import hello.model.user.WebSocketUser;
 import hello.services.MessageService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

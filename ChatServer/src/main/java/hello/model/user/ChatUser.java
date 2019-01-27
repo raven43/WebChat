@@ -1,18 +1,15 @@
-package hello.model;
+package hello.model.user;
 
 import chat.common.Role;
-import chat.common.message.ChatMessage;
 import chat.common.message.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import hello.model.ChatRoom;
 
 import java.util.Date;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class ChatUser {
-
 
     @JsonView(View.Summary.class)
     private Long id;
@@ -22,8 +19,6 @@ public class ChatUser {
     private Role role;
     @JsonIgnore
     private ChatRoom chat;
-    @JsonView(View.Detail.class)
-    private Queue<ChatMessage> messageHistory;
     @JsonView(View.Detail.class)
     private Date registerTime;
     @JsonView(View.Detail.class)
@@ -36,7 +31,6 @@ public class ChatUser {
         this.id = id;
         this.name = name;
         this.role = role;
-        messageHistory = new ConcurrentLinkedQueue<>();
         registerTime = new Date();
         lastActive = registerTime;
     }
@@ -67,10 +61,6 @@ public class ChatUser {
 
     public String getName() {
         return name;
-    }
-
-    public Queue<ChatMessage> getMessageHistory() {
-        return messageHistory;
     }
 
     public void setChat(ChatRoom chat) {

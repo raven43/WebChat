@@ -1,10 +1,10 @@
-package hello.controllers;
+package hello.controllers.rest;
 
 import chat.common.Role;
 import chat.common.message.View;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hello.model.ChatUser;
+import hello.model.user.ChatUser;
 import hello.repo.ChatRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,13 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class ChatRestController {
+public class InfoRestController {
 
     private final ChatRepo repo;
     private final ObjectMapper mapper;
 
     @Autowired
-    public ChatRestController(ChatRepo repo, ObjectMapper mapper) {
+    public InfoRestController(ChatRepo repo, ObjectMapper mapper) {
         this.repo = repo;
         this.mapper = mapper;
     }
