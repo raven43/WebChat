@@ -1,27 +1,34 @@
-package hello.repo;
+package hello.model;
 
 import chat.common.message.ChatMessage;
-import hello.model.ChatUser;
+import chat.common.message.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.Date;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
-public class Chat {
+public class ChatRoom {
 
-    private static long counter = 0;
-
+    @JsonView(View.Summary.class)
     private long id;
+    @JsonView(View.Summary.class)
     private ChatUser agent;
+    @JsonView(View.Summary.class)
     private ChatUser client;
+    @JsonView(View.Detail.class)
     private final Date clientRequestTime;
+    @JsonView(View.Detail.class)
     private Date startTime;
+    @JsonView(View.Detail.class)
     private Date lastMessageTime;
+    @JsonView(View.Detail.class)
     private Queue<ChatMessage> messageHistory;
 
-    public Chat(ChatUser client, ChatMessage startMessage) {
-        this.id = counter++;
+    public ChatRoom(ChatUser client, ChatMessage startMessage) {
+        this.id = UUID.randomUUID().getMostSignificantBits();
         this.client = client;
         this.clientRequestTime = new Date();
         this.messageHistory = new ConcurrentLinkedQueue<>();
@@ -30,15 +37,17 @@ public class Chat {
 
     public void startChat(ChatUser agent) {
         this.agent = agent;
-        //TODO send messages to agent
+        agent.setChat(this);
         this.startTime = new Date();
     }
 
-    public void sendMessageToAgent(ChatMessage message) {
-        messageHistory.add(message);
-        agent.send(message);
+    public ChatUser breakChat(ChatUser breaker) {
+        agent.setChat(null);
+        client.setChat(null);
+        if (agent.equals(breaker)) return client;
+        if (client.equals(breaker)) return agent;
+        return null;
     }
-
 
     public long getId() {
         return id;
@@ -52,12 +61,20 @@ public class Chat {
         return client;
     }
 
+    public Date getClientRequestTime() {
+        return clientRequestTime;
+    }
+
     public Date getStartTime() {
         return startTime;
     }
 
     public Date getLastMessageTime() {
         return lastMessageTime;
+    }
+
+    public void update() {
+        lastMessageTime = new Date();
     }
 
     public Queue<ChatMessage> getMessageHistory() {

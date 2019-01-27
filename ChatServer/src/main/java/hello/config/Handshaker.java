@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public class Handshaker extends DefaultHandshakeHandler {
     private static final String ATTR_PRINCIPAL = "__principal__";
+    private static long counter;
 
     @Override
     protected Principal determineUser(
@@ -20,7 +21,7 @@ public class Handshaker extends DefaultHandshakeHandler {
         final String name;
         //generate id for the current session
         if (!attributes.containsKey(ATTR_PRINCIPAL)) {
-            name = generateRandomUsername();
+            name = generateId();
             attributes.put(ATTR_PRINCIPAL, name);
         } else {
             name = (String) attributes.get(ATTR_PRINCIPAL);
@@ -34,8 +35,8 @@ public class Handshaker extends DefaultHandshakeHandler {
         };
     }
 
-    private String generateRandomUsername() {
-        return String.valueOf(UUID.randomUUID().getMostSignificantBits());
+    private String generateId() {
+        return String.valueOf(UUID.randomUUID().getMostSignificantBits());//String.valueOf(counter++);
     }
 
 }

@@ -2,6 +2,7 @@ package hello.model;
 
 import chat.common.Role;
 import chat.common.message.ChatMessage;
+import chat.common.message.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -12,22 +13,26 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ChatUser {
 
-    @JsonView(Summary.class)
-    private String id;
-    @JsonView(Summary.class)
+
+    @JsonView(View.Summary.class)
+    private Long id;
+    @JsonView(View.Summary.class)
     private String name;
-    @JsonView(Summary.class)
+    @JsonView(View.Summary.class)
     private Role role;
     @JsonIgnore
-    private ChatUser companion;
-    @JsonView(Detail.class)
+    private ChatRoom chat;
+    @JsonView(View.Detail.class)
     private Queue<ChatMessage> messageHistory;
-    @JsonView(Detail.class)
+    @JsonView(View.Detail.class)
     private Date registerTime;
-    @JsonView(Detail.class)
+    @JsonView(View.Detail.class)
     private Date lastActive;
 
-    public ChatUser(String id, String name, Role role) {
+    protected ChatUser() {
+    }
+
+    public ChatUser(Long id, String name, Role role) {
         this.id = id;
         this.name = name;
         this.role = role;
@@ -36,10 +41,7 @@ public class ChatUser {
         lastActive = registerTime;
     }
 
-    public void send(ChatMessage message) {
-    }
-
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -47,13 +49,20 @@ public class ChatUser {
         return role;
     }
 
-    public ChatUser getCompanion() {
-        return companion;
+    public ChatRoom getChat() {
+        return chat;
     }
 
-    @JsonView(Detail.class)
-    public String getCompanionId() {
-        return isFree() ? null : companion.id;
+    @JsonView(View.Detail.class)
+    public long getChatId() {
+        return isFree() ? null : chat.getId();
+    }
+
+    @JsonView(View.Detail.class)
+    public String getConnectionType() {
+        if (this instanceof HttpUser) return "HTTP";
+        if (this instanceof WebSocketUser) return "WebSocket";
+        return "Unrecognised";
     }
 
     public String getName() {
@@ -64,19 +73,20 @@ public class ChatUser {
         return messageHistory;
     }
 
-    public void setCompanion(ChatUser companion) {
-        this.companion = companion;
+    public void setChat(ChatRoom chat) {
+        this.chat = chat;
     }
 
-    @JsonView(Summary.class)
+    @JsonView(View.Summary.class)
     public boolean isFree() {
-        return companion == null;
+        if (chat == null) return true;
+        return chat.getAgent() == null;
     }
 
-    public ChatUser breakChat() {
-        ChatUser comp = companion;
-        companion.companion = null;
-        companion = null;
+    public ChatRoom breakChat() {
+        ChatRoom comp = chat;
+        chat = null;
+        chat = null;
         return comp;
     }
 
@@ -103,9 +113,4 @@ public class ChatUser {
                 '}';
     }
 
-    public static class Detail extends Summary {
-    }
-
-    public static class Summary {
-    }
 }

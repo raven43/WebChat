@@ -1,5 +1,6 @@
 package hello.repo;
 
+import hello.model.ChatRoom;
 import hello.model.ChatUser;
 import org.springframework.stereotype.Repository;
 
@@ -11,21 +12,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Repository
 public class ChatRepo {
 
-    private Map<String, ChatUser> userMap = new HashMap<>();
-    private Queue<ChatUser> freeClientQ = new ConcurrentLinkedQueue<>();
-    private Queue<ChatUser> freeAgentQ = new ConcurrentLinkedQueue<>();
-
+    private Map<Long, ChatUser> userMap = new HashMap<Long, ChatUser>();
+    private Map<Long, ChatRoom> chats = new HashMap<>();
+    private Queue<ChatUser> freeClientQ = new ConcurrentLinkedQueue<ChatUser>();
+    private Queue<ChatUser> freeAgentQ = new ConcurrentLinkedQueue<ChatUser>();
 
     public void putUser(ChatUser user) {
         userMap.put(user.getId(), user);
     }
 
-    public void removeUser(String id) {
+    public void removeUser(Long id) {
         Object o = userMap.remove(id);
     }
 
-    public ChatUser getUser(String id) {
+    public ChatUser getUser(Long id) {
         return userMap.get(id);
+    }
+
+    public Map<Long, ChatRoom> getChats() {
+        return chats;
     }
 
     public Queue<ChatUser> getFreeClientQ() {
@@ -49,7 +54,7 @@ public class ChatRepo {
         return result;
     }
 
-    public Map<String, ChatUser> getUserMap() {
+    public Map<Long, ChatUser> getUserMap() {
         return userMap;
     }
 }

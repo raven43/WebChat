@@ -2,6 +2,7 @@ package hello.config;
 
 import chat.common.Role;
 import hello.model.ChatUser;
+import hello.model.WebSocketUser;
 import hello.services.MessageService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     .equals("/private/reply")
             )
                 //"activate" user. There is some delay btw connecting and subscribing to personal channel
-                service.activateUser(event.getUser().getName());
+                service.activateUser(Long.valueOf(event.getUser().getName()));
         } catch (Exception e) {
             log.warn("Incorrect subscribe " + e.getMessage());
         }
@@ -69,8 +70,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 Role role = Role.valueOf((String) ((LinkedList) headers.get("role")).get(0));
                 String name = (String) ((LinkedList) headers.get("name")).get(0);
 
-                String id = event.getUser().getName();
-                ChatUser user = new ChatUser(id, name, role);
+                Long id = Long.valueOf(event.getUser().getName());
+                ChatUser user = new WebSocketUser(id, name, role);
                 service.handleRegister(user);
             }
         } catch (Exception e) {
@@ -83,6 +84,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void handleDisconnectEvent(SessionDisconnectEvent event) {
 
         log.info("Disconnect user " + event.getUser().getName());
-        service.handleExit(event.getUser().getName());
+        service.handleExit(Long.valueOf(event.getUser().getName()));
     }
 }

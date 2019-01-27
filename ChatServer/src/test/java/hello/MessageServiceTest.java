@@ -32,7 +32,7 @@ public class MessageServiceTest {
     @Test
     public void registerAndActivateTest() {
 
-        String id = UUID.randomUUID().toString();
+        Long id = UUID.randomUUID().getMostSignificantBits();
 
         ChatUser agent = new ChatUser(id, "Cooper", Role.AGENT);
         service.handleRegister(agent);
@@ -43,8 +43,8 @@ public class MessageServiceTest {
 
     @Test
     public void coupleTest() {
-        String clientId = UUID.randomUUID().toString();
-        String agentId = UUID.randomUUID().toString();
+        Long clientId = UUID.randomUUID().getMostSignificantBits();
+        Long agentId = UUID.randomUUID().getMostSignificantBits();
 
         ChatUser agent = new ChatUser(agentId, "Cooper", Role.AGENT);
         ChatUser client = new ChatUser(clientId, "Alice", Role.CLIENT);
@@ -55,16 +55,16 @@ public class MessageServiceTest {
         service.handleRegister(client);
         service.findCompanion(client);
 
-        Assert.assertEquals(agent, client.getCompanion());
-        Assert.assertEquals(client, agent.getCompanion());
+        Assert.assertEquals(agent, client.getChat());
+        Assert.assertEquals(client, agent.getChat());
 
     }
 
     @Test
     public void handleLeaveTest() {
 
-        String clientId = UUID.randomUUID().toString();
-        String agentId = UUID.randomUUID().toString();
+        Long clientId = UUID.randomUUID().getMostSignificantBits();
+        Long agentId = UUID.randomUUID().getMostSignificantBits();
 
         ChatUser agent = new ChatUser(agentId, "Cooper", Role.AGENT);
         ChatUser client = new ChatUser(clientId, "Alice", Role.CLIENT);
@@ -78,8 +78,8 @@ public class MessageServiceTest {
 
         service.handleLeave(clientId);
 
-        Assert.assertNull(client.getCompanion());
-        Assert.assertNull(agent.getCompanion());
+        Assert.assertNull(client.getChat());
+        Assert.assertNull(agent.getChat());
 
         Assert.assertTrue(repo.getFreeAgentQ().contains(agent));
 
@@ -87,9 +87,9 @@ public class MessageServiceTest {
 
     @Test
     public void handleExitTest() {
-        String agent1Id = UUID.randomUUID().toString();
-        String agent2Id = UUID.randomUUID().toString();
-        String clientId = UUID.randomUUID().toString();
+        Long agent1Id = UUID.randomUUID().getMostSignificantBits();
+        Long agent2Id = UUID.randomUUID().getMostSignificantBits();
+        Long clientId = UUID.randomUUID().getMostSignificantBits();
 
         ChatUser agent1 = new ChatUser(agent1Id, "Cooper", Role.AGENT);
         ChatUser agent2 = new ChatUser(agent2Id, "Smith", Role.AGENT);
@@ -103,12 +103,12 @@ public class MessageServiceTest {
 
         service.handleRegister(client);
         service.findCompanion(client);
-        Assert.assertEquals(agent1, client.getCompanion());
+        Assert.assertEquals(agent1, client.getChat());
 
         service.handleExit(agent1Id);
 
         Assert.assertFalse(repo.getUserMap().containsKey(agent1Id));
-        Assert.assertEquals(agent2, client.getCompanion());
+        Assert.assertEquals(agent2, client.getChat());
 
 
     }

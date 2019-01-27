@@ -1,11 +1,15 @@
 package chat.common.message;
 
 import chat.common.Role;
+import com.fasterxml.jackson.annotation.JsonView;
 
 public class ChatMessage {
 
+    @JsonView(View.Summary.class)
     private String name;
+    @JsonView(View.Summary.class)
     private Role role;
+    @JsonView(View.Summary.class)
     private String content;
 
     public ChatMessage() {

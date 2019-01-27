@@ -39,7 +39,7 @@ public class MainController {
             @Payload ChatMessage message,
             Principal principal
     ) {
-        service.handleMessage(principal.getName(), message);
+        service.handleMessage(Long.valueOf(principal.getName()), message);
     }
 
     @MessageMapping(ENDPOINT_COMAND)
@@ -50,7 +50,7 @@ public class MainController {
 
         switch (message.getType()){
             case LEAVE:
-                service.handleLeave(principal.getName());
+                service.handleLeave(Long.valueOf(principal.getName()));
                 break;
         }
     }
