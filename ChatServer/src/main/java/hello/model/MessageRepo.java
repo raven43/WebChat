@@ -20,6 +20,10 @@ public class MessageRepo {
         return messageMap.remove(id);
     }
 
+    public boolean hasStorage(long id) {
+        return messageMap.containsKey(id);
+    }
+
     public void addMessage(long id, ChatMessage message) {
         messageMap.get(id).add(message);
     }

@@ -2,24 +2,22 @@ package hello.controllers.rest;
 
 import chat.common.Role;
 import chat.common.message.View;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hello.model.user.ChatUser;
+import hello.model.ChatUser;
 import hello.repo.ChatRepo;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
+@RequestMapping("/info")
 public class InfoRestController {
 
+    private static final Logger log = Logger.getLogger(InfoRestController.class);
     private final ChatRepo repo;
     private final ObjectMapper mapper;
 
@@ -29,116 +27,218 @@ public class InfoRestController {
         this.mapper = mapper;
     }
 
-    @GetMapping("/users")
-    public String usersSummary() throws JsonProcessingException {
+    //TODO Docs(SpringRestDocs)
 
-        List<ChatUser> list = new ArrayList<>();
-        for (Map.Entry e : repo.getUserMap().entrySet()) {
-            list.add((ChatUser) e.getValue());
-        }
-        return mapper.writerWithView(View.Summary.class).writeValueAsString(list);
-    }
-
-    @GetMapping("/users/detail")
-    public ResponseEntity usersDetail() throws JsonProcessingException {
-
-        List<ChatUser> list = new ArrayList<>();
-        for (Map.Entry e : repo.getUserMap().entrySet()) {
-            list.add((ChatUser) e.getValue());
-        }
-        return new ResponseEntity(mapper.writerWithView(View.Detail.class).writeValueAsString(list), HttpStatus.I_AM_A_TEAPOT);
-    }
-
-    //GET
     //AGENTS
     //all agents summary
     @GetMapping("/agents")
-    public ResponseEntity allAgents() throws JsonProcessingException {
-        List<ChatUser> list = new ArrayList<>();
-        for (Map.Entry e : repo.getUserMap().entrySet()) {
-            if (((ChatUser) e.getValue()).getRole().equals(Role.AGENT)) list.add((ChatUser) e.getValue());
+    public ResponseEntity<Object> allAgents(
+            @RequestParam(required = false, defaultValue = "-1") int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") int pageSize
+    ) {
+        try {
+            List<ChatUser> list = new ArrayList<>();
+            for (Map.Entry e : repo.getUserMap().entrySet())
+                if (((ChatUser) e.getValue()).getRole().equals(Role.AGENT)) list.add((ChatUser) e.getValue());
+
+            if (pageNumber >= 0) {
+                list = page(list, pageNumber, pageSize);
+                if (list == null) return new ResponseEntity<>("No such page", HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(list), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO agents", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity(mapper.writerWithView(View.Summary.class).writeValueAsBytes(list), HttpStatus.OK);
     }
 
     //free agents summary
     @GetMapping("/agents/free")
-    public ResponseEntity freeAgents() throws JsonProcessingException {
-        return new ResponseEntity(mapper.writerWithView(View.Summary.class).writeValueAsBytes(repo.getFreeAgentQ()), HttpStatus.OK);
+    public ResponseEntity<Object> freeAgents(
+            @RequestParam(required = false, defaultValue = "-1") int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") int pageSize
+    ) {
+
+        try {
+            Queue<ChatUser> queue = repo.getFreeAgentQ();
+            if (pageNumber >= 0) {
+                List list = page(queue, pageNumber, pageSize);
+                if (list == null) return new ResponseEntity<>("No such page", HttpStatus.BAD_REQUEST);
+                else
+                    return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(list), HttpStatus.OK);
+            } else
+                return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(queue), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO free agents", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //free agents count
     @GetMapping("/agents/free/count")
-    public ResponseEntity agentsCount() {
-        return new ResponseEntity(repo.getFreeAgentQ().size(), HttpStatus.OK);
+    public ResponseEntity<Object> agentsCount() {
+        try {
+            return new ResponseEntity<>(repo.getFreeAgentQ().size(), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO free agents count", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //agent detail
-    @GetMapping("/agents/detail")
-    public ResponseEntity detailAgents(
-            @RequestParam(required = true) Long id
-    ) throws JsonProcessingException {
-        return new ResponseEntity(mapper.writerWithView(View.Detail.class).writeValueAsBytes(repo.getUser(id)), HttpStatus.OK);
+    @GetMapping("/agents/{id}")
+    public ResponseEntity<Object> detailAgents(
+            @PathVariable Long id
+    ) {
+        try {
+            if (!repo.getUserMap().containsKey(id) || !repo.getUserMap().get(id).getRole().equals(Role.AGENT))
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(mapper.writerWithView(View.Detail.class).writeValueAsBytes(repo.getUser(id)), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO agent detail", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //CLIENTS
     //all clients summary
     @GetMapping("/clients")
-    public ResponseEntity allClients() throws JsonProcessingException {
-        List<ChatUser> list = new ArrayList<>();
-        for (Map.Entry e : repo.getUserMap().entrySet()) {
-            if (((ChatUser) e.getValue()).getRole().equals(Role.CLIENT)) list.add((ChatUser) e.getValue());
+    public ResponseEntity<Object> allClients(
+            @RequestParam(required = false, defaultValue = "-1") int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") int pageSize
+    ) {
+        try {
+            List<ChatUser> list = new ArrayList<>();
+            for (Map.Entry e : repo.getUserMap().entrySet())
+                if (((ChatUser) e.getValue()).getRole().equals(Role.CLIENT)) list.add((ChatUser) e.getValue());
+
+            if (pageNumber >= 0) {
+                list = page(list, pageNumber, pageSize);
+                if (list == null) return new ResponseEntity<>("No such page", HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(list), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO clients", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity(mapper.writerWithView(View.Summary.class).writeValueAsBytes(list), HttpStatus.OK);
     }
 
     //free clients summary
     @GetMapping("/clients/free")
-    public ResponseEntity freeClients() throws JsonProcessingException {
-        return new ResponseEntity(mapper.writerWithView(View.Summary.class).writeValueAsBytes(repo.getFreeClientQ()), HttpStatus.OK);
+    public ResponseEntity freeClients(
+            @RequestParam(required = false, defaultValue = "-1") int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") int pageSize
+    ) {
+        try {
+            Queue<ChatUser> queue = repo.getFreeClientQ();
+            if (pageNumber >= 0) {
+                List list = page(queue, pageNumber, pageSize);
+                if (list == null) {
+                    return new ResponseEntity<>("No such page", HttpStatus.BAD_REQUEST);
+                } else
+                    return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(list), HttpStatus.OK);
+            } else
+                return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(queue), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO free clients", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //free clients count
     @GetMapping("/clients/free/count")
-    public ResponseEntity freeClientsCount() {
-        return new ResponseEntity(repo.getFreeClientQ().size(), HttpStatus.OK);
+    public ResponseEntity<Object> freeClientsCount() {
+        try {
+            return new ResponseEntity<>(repo.getFreeClientQ().size(), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO free agents count", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //client detail
-    @GetMapping("/clients/detail")
+    @GetMapping("/clients/detail/{id}")
     public ResponseEntity clientDetail(
-            @RequestParam(required = true) Long id
-    ) throws JsonProcessingException {
-        return new ResponseEntity(mapper.writerWithView(View.Detail.class).writeValueAsBytes(repo.getUser(id)), HttpStatus.OK);
+            @PathVariable(required = true) Long id
+    ) {
+        try {
+            if (!repo.getUserMap().containsKey(id) || !repo.getUserMap().get(id).getRole().equals(Role.CLIENT))
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(mapper.writerWithView(View.Detail.class).writeValueAsBytes(repo.getUser(id)), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO client detail", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //CHATS
     //active chats summary
     @GetMapping("/chats")
-    public ResponseEntity activeChats() throws JsonProcessingException {
+    public ResponseEntity activeChats(
+            @RequestParam(required = false, defaultValue = "-1") int pageNumber,
+            @RequestParam(required = false, defaultValue = "10") int pageSize
+    ) {
 
-        return new ResponseEntity(mapper.writerWithView(View.Summary.class).writeValueAsBytes(repo.getChats()), HttpStatus.OK);
+        try {
+            Collection values = repo.getChats().values();
+            if (pageNumber >= 0) {
+                List list = page(values, pageNumber, pageSize);
+                if (list == null) {
+                    return new ResponseEntity<>("No such page", HttpStatus.BAD_REQUEST);
+                } else {
+                    return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(list), HttpStatus.OK);
+                }
+            } else
+                return new ResponseEntity<>(mapper.writerWithView(View.Summary.class).writeValueAsBytes(values), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO chats", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //active chats count
     @GetMapping("/chats/count")
     public ResponseEntity activeChatsCount() {
-        return new ResponseEntity(repo.getChats().size(), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(repo.getChats().size(), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO chats count", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //chat detail
-    @GetMapping("/chats/detail")
+    @GetMapping("/chats/{id}")
     public ResponseEntity chatsDetail(
-            @RequestParam Long id
-    ) throws JsonProcessingException {
-        return new ResponseEntity(mapper.writerWithView(View.Detail.class).writeValueAsBytes(repo.getChats().get(id)), HttpStatus.OK);
+            @PathVariable Long id
+    ) {
+        try {
+            if (!repo.getChats().containsKey(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(mapper.writerWithView(View.Detail.class).writeValueAsBytes(repo.getChats().get(id)), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("REST INFO chats detail", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    //CHAT INTERFACE
-    //register
-    //send message
-    //get messages
-    //leave chat
-    //exit
+
+    private static List page(List list, int pN, int pS) {
+
+        if (pN < 0) return null;
+        if (pS >= list.size()) return list;
+        int start = pS * pN;
+        int end = (pS * (pN + 1)) - 1;
+        int last = list.size() - 1;
+        if (start > last) return null;
+
+        end = end >= last ? last : end;
+
+        return new ArrayList(list.subList(start, end + 1));
+    }
+
+    private static List page(Collection collection, int pN, int pS) {
+        return page(Arrays.asList(collection.toArray()), pN, pS);
+    }
+
 
 }

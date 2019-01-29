@@ -3,8 +3,8 @@ package hello.services;
 import chat.common.Role;
 import chat.common.message.ChatMessage;
 import hello.model.ChatRoom;
+import hello.model.ChatUser;
 import hello.model.MessageRepo;
-import hello.model.user.ChatUser;
 import hello.repo.ChatRepo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +67,10 @@ public class MessageService {
 
     private void send(ChatUser user, ChatMessage message) {
         switch (user.getConnectionType()) {
-            case "WebSocket":
+            case WebSocket:
                 template.convertAndSendToUser(String.valueOf(user.getId()), USER_DEST, message);
                 break;
-            case "HTTP":
+            case HTTP:
                 messageRepo.addMessage(user.getId(), message);
                 break;
             default:
@@ -126,6 +126,8 @@ public class MessageService {
     }
 
     public void handleRegister(ChatUser user) {
+        if (user.getConnectionType().equals(ChatUser.ConnectionType.HTTP))
+            messageRepo.addStorage(user.getId());
         log.info("Register user " + user);
         repo.putUser(user);
     }
@@ -158,7 +160,7 @@ public class MessageService {
 
         log.info("Exit user " + user);
         repo.removeUser(id);
-
+        messageRepo.removeStorage(id);
     }
 
     public void handleLeave(Long id) {

@@ -2,8 +2,8 @@ package hello;
 
 import chat.common.Role;
 import chat.common.message.ChatMessage;
+import hello.model.ChatUser;
 import hello.model.MessageRepo;
-import hello.model.user.ChatUser;
 import hello.repo.ChatRepo;
 import hello.services.MessageService;
 import org.junit.After;

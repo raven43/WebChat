@@ -1,10 +1,9 @@
-package hello.model.user;
+package hello.model;
 
 import chat.common.Role;
 import chat.common.message.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import hello.model.ChatRoom;
 
 import java.util.Date;
 
@@ -23,17 +22,25 @@ public class ChatUser {
     private Date registerTime;
     @JsonView(View.Detail.class)
     private Date lastActive;
+    @JsonView(View.Detail.class)
+    private ConnectionType connectionType;
 
     protected ChatUser() {
     }
 
     public ChatUser(Long id, String name, Role role) {
+        this(id, name, role, ConnectionType.WebSocket);
+    }
+
+    public ChatUser(Long id, String name, Role role, ConnectionType type) {
         this.id = id;
         this.name = name;
         this.role = role;
+        this.connectionType = type;
         registerTime = new Date();
         lastActive = registerTime;
     }
+
 
     public Long getId() {
         return id;
@@ -52,11 +59,8 @@ public class ChatUser {
         return isFree() ? null : chat.getId();
     }
 
-    @JsonView(View.Detail.class)
-    public String getConnectionType() {
-        if (this instanceof HttpUser) return "HTTP";
-        if (this instanceof WebSocketUser) return "WebSocket";
-        return "Unrecognised";
+    public ConnectionType getConnectionType() {
+        return connectionType;
     }
 
     public String getName() {
@@ -73,19 +77,17 @@ public class ChatUser {
         return chat.getAgent() == null;
     }
 
-    public ChatRoom breakChat() {
-        ChatRoom comp = chat;
-        chat = null;
-        chat = null;
-        return comp;
-    }
-
     public Date getRegisterTime() {
         return registerTime;
     }
 
     public Date getLastActive() {
         return lastActive;
+    }
+
+    @JsonIgnore
+    public long getPassiveTime() {
+        return new Date().getTime() - lastActive.getTime();
     }
 
     public void active() {
@@ -101,6 +103,10 @@ public class ChatUser {
                 ", register=" + registerTime +
                 ", active=" + lastActive +
                 '}';
+    }
+
+    public enum ConnectionType {
+        WebSocket, HTTP
     }
 
 }

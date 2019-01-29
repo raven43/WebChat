@@ -1,8 +1,7 @@
 package hello.config;
 
 import chat.common.Role;
-import hello.model.user.ChatUser;
-import hello.model.user.WebSocketUser;
+import hello.model.ChatUser;
 import hello.services.MessageService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +70,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 String name = (String) ((LinkedList) headers.get("name")).get(0);
 
                 Long id = Long.valueOf(event.getUser().getName());
-                ChatUser user = new WebSocketUser(id, name, role);
+                ChatUser user = new ChatUser(id, name, role);
                 service.handleRegister(user);
             }
         } catch (Exception e) {

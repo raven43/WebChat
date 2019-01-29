@@ -1,7 +1,7 @@
 package hello.repo;
 
 import hello.model.ChatRoom;
-import hello.model.user.ChatUser;
+import hello.model.ChatUser;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
