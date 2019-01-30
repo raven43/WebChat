@@ -28,10 +28,6 @@ public class MessageRepo {
         messageMap.get(id).add(message);
     }
 
-    public void addMessage(long id, List<ChatMessage> messages) {
-        messageMap.get(id).addAll(messages);
-    }
-
     public List<ChatMessage> getMessages(long id) {
         List<ChatMessage> list = new ArrayList<>(messageMap.get(id));
         messageMap.get(id).clear();

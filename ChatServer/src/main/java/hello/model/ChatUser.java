@@ -10,23 +10,15 @@ import java.util.Date;
 
 public class ChatUser {
 
-    @JsonView(View.Summary.class)
     private Long id;
-    @JsonView(View.Summary.class)
     private String name;
-    @JsonView(View.Summary.class)
     private Role role;
     @JsonIgnore
     private ChatRoom chat;
-    @JsonView(View.Detail.class)
     private Date registerTime;
-    @JsonView(View.Detail.class)
     private Date lastActive;
     @JsonIgnore
     private ConnectionType connectionType;
-
-    protected ChatUser() {
-    }
 
     public ChatUser(Long id, String name, Role role) {
         this(id, name, role, ConnectionType.WebSocket);
@@ -41,17 +33,38 @@ public class ChatUser {
         lastActive = registerTime;
     }
 
+    public void active() {
+        lastActive = new Date();
+    }
 
+    public void setChat(ChatRoom chat) {
+        this.chat = chat;
+    }
+
+    @JsonView(View.Summary.class)
     public Long getId() {
         return id;
     }
 
+    @JsonView(View.Summary.class)
+    public String getName() {
+        return name;
+    }
+
+    @JsonView(View.Summary.class)
     public Role getRole() {
         return role;
     }
 
+    @JsonIgnore
     public ChatRoom getChat() {
         return chat;
+    }
+
+    @JsonView(View.Summary.class)
+    public boolean isFree() {
+        if (chat == null) return true;
+        return chat.getAgent() == null;
     }
 
     @JsonView(View.Detail.class)
@@ -59,6 +72,7 @@ public class ChatUser {
         return isFree() ? null : chat.getId();
     }
 
+    @JsonIgnore
     public ConnectionType getConnectionType() {
         return connectionType;
     }
@@ -68,24 +82,12 @@ public class ChatUser {
         return connectionType.toString();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setChat(ChatRoom chat) {
-        this.chat = chat;
-    }
-
-    @JsonView(View.Summary.class)
-    public boolean isFree() {
-        if (chat == null) return true;
-        return chat.getAgent() == null;
-    }
-
+    @JsonView(View.Detail.class)
     public Date getRegisterTime() {
         return registerTime;
     }
 
+    @JsonView(View.Detail.class)
     public Date getLastActive() {
         return lastActive;
     }
@@ -95,18 +97,15 @@ public class ChatUser {
         return new Date().getTime() - lastActive.getTime();
     }
 
-    public void active() {
-        lastActive = new Date();
-    }
-
     @Override
     public String toString() {
         return "ChatUser{" +
-                "id='" + id + '\'' +
-                ", " + role +
-                " " + name +
-                ", register=" + registerTime +
-                ", active=" + lastActive +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", role=" + role +
+                ", registerTime=" + registerTime +
+                ", lastActive=" + lastActive +
+                ", connectionType=" + connectionType +
                 '}';
     }
 

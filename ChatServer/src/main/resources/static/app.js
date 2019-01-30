@@ -85,7 +85,7 @@ function showMessage(message) {
     var name = JSON.parse(message.body).name;
     var content = JSON.parse(message.body).content;
 
-    var show = "<tr><td style='width: 20%'><b>" + (role == null ? '' : role) + " " + (name == null ? '' : name + ': ') + "</b></td><td>" + content + "</td></tr>"
+    var show = "<tr><td style='width: 20%'><b>" + (role == null ? '' : role) + " " + (name == null ? '' : name + ': ') + "</b></td><td>" + content + "</td></tr>";
     $("#greetings").append(show);
     window.scrollTo(0,document.body.scrollHeight);
 }

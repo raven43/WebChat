@@ -3,6 +3,7 @@ package hello.controllers.rest;
 import chat.common.Role;
 import chat.common.message.View;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hello.model.ChatRoom;
 import hello.model.ChatUser;
 import hello.repo.ChatRepo;
 import org.apache.log4j.Logger;
@@ -159,7 +160,7 @@ public class InfoRestController {
     //client detail
     @GetMapping("/clients/detail/{id}")
     public ResponseEntity clientDetail(
-            @PathVariable(required = true) Long id
+            @PathVariable Long id
     ) {
         try {
             if (!repo.getUserMap().containsKey(id) || !repo.getUserMap().get(id).getRole().equals(Role.CLIENT))
@@ -182,9 +183,9 @@ public class InfoRestController {
     ) {
 
         try {
-            Collection values = repo.getChats().values();
+            Collection<ChatRoom> values = repo.getChats().values();
             if (pageNumber >= 0) {
-                List list = page(values, pageNumber, pageSize);
+                List<ChatRoom> list = page(values, pageNumber, pageSize);
                 if (list == null) {
                     return new ResponseEntity<>("No such page", HttpStatus.BAD_REQUEST);
                 } else {
@@ -224,23 +225,19 @@ public class InfoRestController {
     }
 
 
-    private static List page(List list, int pN, int pS) {
+    private static <T> List<T> page(Collection<T> collection, int pN, int pS) {
 
+        List<T> list = new ArrayList<>(collection);
         if (pN < 0) return null;
         if (pS >= list.size()) return list;
         int start = pS * pN;
         int end = (pS * (pN + 1)) - 1;
         int last = list.size() - 1;
         if (start > last) return null;
-
         end = end >= last ? last : end;
-
-        return new ArrayList(list.subList(start, end + 1));
+        return new ArrayList<>(list.subList(start, end + 1));
     }
 
-    private static List page(Collection collection, int pN, int pS) {
-        return page(Arrays.asList(collection.toArray()), pN, pS);
-    }
 
 
 }

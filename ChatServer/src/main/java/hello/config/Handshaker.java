@@ -26,13 +26,7 @@ public class Handshaker extends DefaultHandshakeHandler {
         } else {
             name = (String) attributes.get(ATTR_PRINCIPAL);
         }
-
-        return new Principal() {
-            @Override
-            public String getName() {
-                return name;
-            }
-        };
+        return () -> name;
     }
 
     private String generateId() {

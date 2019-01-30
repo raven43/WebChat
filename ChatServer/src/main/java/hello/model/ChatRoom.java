@@ -12,19 +12,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ChatRoom {
 
-    @JsonView(View.Summary.class)
     private long id;
-    @JsonView(View.Summary.class)
     private ChatUser agent;
-    @JsonView(View.Summary.class)
     private ChatUser client;
-    @JsonView(View.Detail.class)
     private final Date clientRequestTime;
-    @JsonView(View.Detail.class)
     private Date startTime;
-    @JsonView(View.Detail.class)
     private Date lastMessageTime;
-    @JsonView(View.Detail.class)
     private Queue<ChatMessage> messageHistory;
 
     public ChatRoom(ChatUser client, ChatMessage startMessage) {
@@ -49,26 +42,32 @@ public class ChatRoom {
         return null;
     }
 
+    @JsonView(View.Summary.class)
     public long getId() {
         return id;
     }
 
+    @JsonView(View.Summary.class)
     public ChatUser getAgent() {
         return agent;
     }
 
+    @JsonView(View.Summary.class)
     public ChatUser getClient() {
         return client;
     }
 
+    @JsonView(View.Detail.class)
     public Date getClientRequestTime() {
         return clientRequestTime;
     }
 
+    @JsonView(View.Detail.class)
     public Date getStartTime() {
         return startTime;
     }
 
+    @JsonView(View.Detail.class)
     public Date getLastMessageTime() {
         return lastMessageTime;
     }
@@ -77,6 +76,7 @@ public class ChatRoom {
         lastMessageTime = new Date();
     }
 
+    @JsonView(View.Detail.class)
     public Queue<ChatMessage> getMessageHistory() {
         return messageHistory;
     }
