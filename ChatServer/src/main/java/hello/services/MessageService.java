@@ -11,16 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 
 @Service
 public class MessageService {
 
     private static Logger log = Logger.getLogger(MessageService.class);
-
     private static final String USER_DEST = "/reply";
-    private ChatRepo repo;
-    private SimpMessagingTemplate template;
-    private MessageRepo messageRepo;
+
+    private final ChatRepo repo;
+    private final SimpMessagingTemplate template;
+    private final MessageRepo messageRepo;
 
     @Autowired
     public MessageService(
@@ -61,7 +65,6 @@ public class MessageService {
                 user.getChat().update();
             }
             send(user, message);
-            //template.convertAndSendToUser(user.getId(), USER_DEST, message);
         }
     }
 
@@ -74,17 +77,12 @@ public class MessageService {
                 messageRepo.addMessage(user.getId(), message);
                 break;
             default:
-                log.warn("Unrecognased user " + user);
+                log.warn("Unrecognized user " + user);
                 break;
         }
     }
 
     public void findCompanion(ChatUser user) {
-        /*template.convertAndSendToUser(
-                user.getId(),
-                USER_DEST,
-                new ChatMessage(user.getRole().equals(Role.AGENT) ? "Wait for the client..." : "Wait for the agent...")
-        );*/
         send(user, new ChatMessage(user.getRole().equals(Role.AGENT) ? "Wait for the client..." : "Wait for the agent..."));
         synchronized (repo) {
             if (user.isFree()) {
@@ -107,7 +105,6 @@ public class MessageService {
         ChatUser client = user1.getRole().equals(Role.CLIENT) ? user1 : user2;
         ChatUser agent = user1.getRole().equals(Role.AGENT) ? user1 : user2;
 
-
         client.getChat().startChat(agent);
         repo.getChats().put(client.getChat().getId(), client.getChat());
 
@@ -116,12 +113,8 @@ public class MessageService {
         send(agent, new ChatMessage("You get client " + client.getName()));
         send(client, new ChatMessage("You get agent " + agent.getName()));
 
-        //template.convertAndSendToUser(agent.getId(), USER_DEST, new ChatMessage("You get client " + client.getName()));
-        //template.convertAndSendToUser(client.getId(), USER_DEST, new ChatMessage("You get agent " + agent.getName()));
-
         for (ChatMessage message : client.getChat().getMessageHistory()) {
             send(agent, message);
-            //template.convertAndSendToUser(agent.getId(), USER_DEST, message);
         }
     }
 
@@ -136,7 +129,6 @@ public class MessageService {
         ChatUser user = repo.getUser(id);
         log.info("Activate " + user);
         send(user, new ChatMessage("Welcome " + user.getRole().str + " " + user.getName()));
-        //template.convertAndSendToUser(user.getId(), USER_DEST, new ChatMessage("Welcome " + user.getRole().str + " " + user.getName()));
         if (user.getRole().equals(Role.AGENT))
             findCompanion(user);
     }
@@ -147,11 +139,9 @@ public class MessageService {
             log.info("Stop chat btw agent [" + user.getChat().getAgent().getName() + "] and client [" +
                     user.getChat().getClient().getName() + "]: " + user.getRole().str + " exit");
 
-            ChatUser orphan = user.getChat().breakChat(user);
             repo.getChats().remove(user.getChat().getId());
-
+            ChatUser orphan = user.getChat().breakChat(user);
             send(orphan, new ChatMessage("Your " + user.getRole().str + " exit"));
-            //template.convertAndSendToUser(orphan.getId(), USER_DEST, new ChatMessage("Your " + user.getRole().str + " exit"));
             findCompanion(orphan);
         } else if (user.getRole().equals(Role.CLIENT))
             repo.getFreeClientQ().remove(user);
@@ -170,24 +160,32 @@ public class MessageService {
             send(client, new ChatMessage("You leave the chat"));
             //template.convertAndSendToUser(client.getId(), USER_DEST, new ChatMessage("You leave the chat"));
             if (!client.isFree() && client.getRole().equals(Role.CLIENT)) {
-                log.info("Stop chat btw agent [" + client.getChat().getAgent().getName() + "] and client [" +
-                        client.getName() + "]: Client leave");
-
+                log.info("Stop chat btw agent [" + client.getChat().getAgent().getName() +
+                        "] and client [" + client.getName() + "]: Client leave");
                 ChatUser orphan = client.getChat().breakChat(client);
                 repo.getChats().remove(client.getChat().getId());
-
                 send(orphan, new ChatMessage("You client leave the chat"));
-                //template.convertAndSendToUser(orphan.getId(), USER_DEST, new ChatMessage("You client leave the chat"));
                 findCompanion(orphan);
             }
             client.setChat(null);
-            //client.getMessageHistory().clear();
-
             repo.getFreeClientQ().remove(client);
         }
     }
 
     public ChatRepo getRepo() {
         return repo;
+    }
+
+    public Collection<ChatUser> getHttpUser() {
+        List<ChatUser> response = new ArrayList<>();
+        for (ChatUser user : repo.getUserMap().values()) {
+            if (user.getConnectionType().equals(ChatUser.ConnectionType.HTTP))
+                response.add(user);
+        }
+        return response;
+    }
+
+    public String stats() {
+        return repo.toString();
     }
 }

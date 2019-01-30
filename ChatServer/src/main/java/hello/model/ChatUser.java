@@ -22,7 +22,7 @@ public class ChatUser {
     private Date registerTime;
     @JsonView(View.Detail.class)
     private Date lastActive;
-    @JsonView(View.Detail.class)
+    @JsonIgnore
     private ConnectionType connectionType;
 
     protected ChatUser() {
@@ -55,12 +55,17 @@ public class ChatUser {
     }
 
     @JsonView(View.Detail.class)
-    public long getChatId() {
+    public Long getChatId() {
         return isFree() ? null : chat.getId();
     }
 
     public ConnectionType getConnectionType() {
         return connectionType;
+    }
+
+    @JsonView(View.Detail.class)
+    public String getType() {
+        return connectionType.toString();
     }
 
     public String getName() {

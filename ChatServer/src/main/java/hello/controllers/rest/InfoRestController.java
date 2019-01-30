@@ -86,7 +86,7 @@ public class InfoRestController {
     }
 
     //agent detail
-    @GetMapping("/agents/{id}")
+    @GetMapping("/agents/detail/{id}")
     public ResponseEntity<Object> detailAgents(
             @PathVariable Long id
     ) {
@@ -164,7 +164,9 @@ public class InfoRestController {
         try {
             if (!repo.getUserMap().containsKey(id) || !repo.getUserMap().get(id).getRole().equals(Role.CLIENT))
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            return new ResponseEntity<>(mapper.writerWithView(View.Detail.class).writeValueAsBytes(repo.getUser(id)), HttpStatus.OK);
+            ChatUser user = repo.getUser(id);
+            byte[] response = mapper.writerWithView(View.Detail.class).writeValueAsBytes(user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("REST INFO client detail", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -208,7 +210,7 @@ public class InfoRestController {
     }
 
     //chat detail
-    @GetMapping("/chats/{id}")
+    @GetMapping("/chats/detail/{id}")
     public ResponseEntity chatsDetail(
             @PathVariable Long id
     ) {

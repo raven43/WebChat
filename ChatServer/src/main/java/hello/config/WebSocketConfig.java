@@ -24,9 +24,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private static Logger log = Logger.getLogger(WebSocketConfig.class);
 
-    public static final String SUBSCRIBE_USER_PREFIX = "/private";
-    public static final String SUBSCRIBE_USER_REPLY = "/reply";
-    public static final String SUBSCRIBE_QUEUE = "/queue";
+    private static final String SUBSCRIBE_USER_PREFIX = "/private";
+    private static final String SUBSCRIBE_USER_REPLY = "/reply";
+    private static final String SUBSCRIBE_QUEUE = "/queue";
 
     @Autowired
     private MessageService service;
@@ -74,15 +74,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 service.handleRegister(user);
             }
         } catch (Exception e) {
-            log.warn("Incorrect connect " + e.getMessage());
+            log.warn("Incorrect connect ", e);
         }
 
     }
 
     @EventListener
     public void handleDisconnectEvent(SessionDisconnectEvent event) {
-
-        log.info("Disconnect user " + event.getUser().getName());
-        service.handleExit(Long.valueOf(event.getUser().getName()));
+        try {
+            log.info("Disconnect user " + event.getUser().getName());
+            service.handleExit(Long.valueOf(event.getUser().getName()));
+        } catch (Exception e) {
+            log.warn("Incorrect disconnect ", e);
+        }
     }
 }

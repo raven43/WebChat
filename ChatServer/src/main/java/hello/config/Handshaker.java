@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Handshaker extends DefaultHandshakeHandler {
+
     private static final String ATTR_PRINCIPAL = "__principal__";
-    private static long counter;
 
     @Override
     protected Principal determineUser(
@@ -36,7 +36,7 @@ public class Handshaker extends DefaultHandshakeHandler {
     }
 
     private String generateId() {
-        return String.valueOf(UUID.randomUUID().getMostSignificantBits());//String.valueOf(counter++);
+        return String.valueOf(UUID.randomUUID().getMostSignificantBits());
     }
 
 }

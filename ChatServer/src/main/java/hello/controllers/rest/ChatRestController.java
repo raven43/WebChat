@@ -31,7 +31,6 @@ public class ChatRestController {
         this.messageRepo = messageRepo;
     }
 
-    //CHAT INTERFACE
     //register
     @PostMapping("/register")
     public ResponseEntity<Object> register(
@@ -39,6 +38,13 @@ public class ChatRestController {
             @RequestParam String role
     ) {
         try {
+            Role r = null;
+            try {
+                r = Role.valueOf(role);
+            } catch (Throwable ignored) {
+            }
+            if (r == null)
+                return new ResponseEntity<>("Unrecognised role", HttpStatus.BAD_REQUEST);
             long id = UUID.randomUUID().getMostSignificantBits();
             ChatUser user = new ChatUser(id, name, Role.valueOf(role), ChatUser.ConnectionType.HTTP);
             service.handleRegister(user);
@@ -57,7 +63,8 @@ public class ChatRestController {
             @RequestParam String message
     ) {
         try {
-            if (!repo.getUserMap().containsKey(id)) return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            if (!repo.getUserMap().containsKey(id))
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
             service.handleMessage(id, message);
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
@@ -71,23 +78,31 @@ public class ChatRestController {
     public ResponseEntity<List<ChatMessage>> getMessages(
             @PathVariable Long id
     ) {
-        if (!repo.getUserMap().containsKey(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        if (messageRepo.hasStorage(id))
+        try {
+            if (!repo.getUserMap().containsKey(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            if (!messageRepo.hasStorage(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             return new ResponseEntity<>(messageRepo.getMessages(id), HttpStatus.OK);
-        else
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("HTTP get message error", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
 
     //leave
     @PostMapping("/{id}/leave")
     public ResponseEntity leave(
             @PathVariable Long id
     ) {
-        if (!repo.getUserMap().containsKey(id)) return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        if (!repo.getUserMap().get(id).getRole().equals(Role.AGENT)) return new ResponseEntity(HttpStatus.FORBIDDEN);
-        service.handleLeave(id);
-        return new ResponseEntity(HttpStatus.OK);
+        try {
+            if (!repo.getUserMap().containsKey(id)) return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            if (!repo.getUserMap().get(id).getRole().equals(Role.AGENT))
+                return new ResponseEntity(HttpStatus.FORBIDDEN);
+            service.handleLeave(id);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("HTTP leave error", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     //exit
@@ -95,10 +110,13 @@ public class ChatRestController {
     public ResponseEntity exit(
             @PathVariable Long id
     ) {
-        if (!repo.getUserMap().containsKey(id)) return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        service.handleExit(id);
-        return new ResponseEntity(HttpStatus.OK);
+        try {
+            if (!repo.getUserMap().containsKey(id)) return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            service.handleExit(id);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("HTTP exit error", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
-
 }
