@@ -110,8 +110,8 @@ public class MessageService {
 
         log.info("Start chat btw agent [" + agent.getName() + "] and client [" + client.getName() + "]");
 
-        send(agent, new ChatMessage("You get client " + client.getName()));
-        send(client, new ChatMessage("You get agent " + agent.getName()));
+        send(agent, new ChatMessage(client.getName(), "You get client " + client.getName()));
+        send(client, new ChatMessage(agent.getName(), "You get agent " + agent.getName()));
 
         for (ChatMessage message : client.getChat().getMessageHistory()) {
             send(agent, message);

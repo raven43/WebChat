@@ -95,7 +95,7 @@ public class ChatRestController {
     ) {
         try {
             if (!repo.getUserMap().containsKey(id)) return new ResponseEntity(HttpStatus.BAD_REQUEST);
-            if (!repo.getUserMap().get(id).getRole().equals(Role.AGENT))
+            if (repo.getUserMap().get(id).getRole().equals(Role.AGENT))
                 return new ResponseEntity(HttpStatus.FORBIDDEN);
             service.handleLeave(id);
             return new ResponseEntity(HttpStatus.OK);
