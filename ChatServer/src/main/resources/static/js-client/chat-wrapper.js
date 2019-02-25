@@ -1,40 +1,150 @@
-;(function () {
+;"use strict";
+(function () {
 
-    var chat = $('<div>', {class: 'chat-container'});
-    var messageArea = $("<div>", {class: "message-history"});
-    var input = $("<input>", {class: "message-input", type: "text", placeholder: "Your name pls..."});
-    var header = $("<header>", {class: 'chat-header'});
-    var footer = $("<footer>", {class: 'message-form'});
-    var compLabel = $('<div>', {class: 'comp-label'});
-    var btnHide = $('<div>', {class: 'btn-hide'});
+    const chat = $('<div>', {class: 'chat-container right'});
+    const messageArea = $("<div>", {class: "message-history"});
+    const input = $("<input>", {class: "message-input", type: "text", placeholder: "Your name pls..."});
+    const header = $("<header>", {class: 'chat-header'});
+    const footer = $("<footer>", {class: 'message-form'});
+    const compLabel = $('<div>', {class: 'comp-label'});
+    const btnSettings = $('<div>', {class: 'btn-settings'});
+    btnSettings.html('<b>⚙</b>');
+    const btnHide = $('<div>', {class: 'btn-hide'});
     btnHide.html('<b>–</b>');
-    var btnExit = $('<div>', {class: 'btn-exit'});
+    const btnExit = $('<div>', {class: 'btn-exit'});
     btnExit.html('<b>×</b>');
-    var chatLabel = $('<div>', {class: 'chat-label'});
+
+    const chatLabel = $('<div>', {class: 'chat-label'});
+
+    const chatSettings = $('<div></div>', {class: 'chat-settings'});
+    //settings
+    chatSettings.hide();
+    const labelInp = $('<div>' +
+        '<label class="input-label" for="label-input">Chat label</label> ' +
+        '<input id="label-input" class="input-control" type="text">' +
+        '</div>');
+    const positionSelect = $('<div>' +
+        '<label class="input-label" for="pos-select">Position</label>' +
+        '<select id="pos-select" class="input-control">' +
+        '<option class="input-control" value="right">right</option>' +
+        '<option class="input-control" value="left">left</option>' +
+        '</select>' +
+        '</div>');
+    const urlInput = $('<div>' +
+        '<label class="input-label" for="url-input">URL</label>' +
+        '<input class="input-control" id="url-input" class="input-control" type="url">' +
+        '</div>');
+    const minCheck = $('<div>' +
+        '<input class="input-control" id="min-check" type="checkbox">' +
+        '<label class="input-label" for="min-check">Allow to minimize</label>' +
+        '</div>');
+    const dragCheck = $('<div>' +
+        '<input class="input-control" id="drag-check" type="checkbox">' +
+        '<label class="input-label" for="drag-check">Allow to drag</label>' +
+        '</div>');
+
+    const defaultBtn = $('<button class="default-btn">Default</button>');
+    const applyBtn = $('<button class="apply-btn">Apply</button>');
+
+
+    chatSettings.append(labelInp);
+    chatSettings.append(positionSelect);
+    chatSettings.append(urlInput);
+    chatSettings.append(minCheck);
+    chatSettings.append(dragCheck);
+    chatSettings.append(applyBtn);
+    chatSettings.append(defaultBtn);
+    //header
     header.append(chatLabel);
     header.append(btnExit);
     header.append(btnHide);
+    header.append(btnSettings);
     header.append(compLabel);
+    //footer
     footer.append(input);
+    //body
     chat.append(header);
+    chat.append(chatSettings);
     chat.append(messageArea);
     chat.append(footer);
 
-    var register;
-    var send;
-    var leave;
-    var exit;
+    let register;
+    let send;
+    let leave;
+    let exit;
 
-    var isHide = true;
-    var isRegistred = false;
-    var name;
+    let isHide = false;
+    let isRegistred = false;
+    let name;
+    //config variables
+    let chatPosition = 'right';
+    let dragable = false;
+    let minimizeable = true;
 
-    function wrapper(str) {
-        chatLabel.text(str ? str : 'WebChat');
-        messageArea.hide();
-        footer.hide();
-        btnHide.hide();
-        btnExit.hide();
+    wrapper.toggle = function () {
+        if (minimizeable) {
+
+            isHide = !isHide;
+            messageArea.toggle('fast');
+            footer.toggle('fast');
+            btnSettings.toggle('fast');
+            btnHide.toggle('fast');
+            btnExit.toggle('fast');
+        }
+    };
+
+    wrapper.getConfig = function () {
+        return {
+            label: labelInp[0].children[1].value || 'WebChat',
+            position: positionSelect[0].children[1].value || 'right',
+            drag: dragCheck[0].children[0].checked || false,
+            minimize: minCheck[0].children[0].checked || true,
+        };
+    };
+    wrapper.setConfig = function (config) {
+        labelInp[0].children[1].value = config.label || chatLabel.text();
+        positionSelect[0].children[1].value = config.position || chatPosition;
+        dragCheck[0].children[0].checked = config.drag || dragable;
+        minCheck[0].children[0].checked = config.minimize || minimizeable;
+    };
+
+    function validateSettings(settings) {
+        if (!settings || typeof settings !== 'object') settings = {};
+        if (!settings.label) settings.label = "WebChat";
+        if (!settings.position || (settings.position !== 'left' && settings.position !== 'right')) settings.position = "right";
+        if (!settings.drag) settings.drag = false;
+        if (!settings.minimize) settings.minimize = true;
+        return settings;
+    }
+
+
+    wrapper.configurate = function (settings) {
+
+        settings = validateSettings(settings);
+        //save config
+        window.localStorage.setItem('chat-config', JSON.stringify(settings));
+        //label
+        chatLabel.text(settings.label);
+        //position
+        if (chatPosition !== settings.position) {
+            chatPosition = settings.position;
+            chat.toggleClass("left");
+            chat.toggleClass("right");
+        }
+        //minimize
+        minimizeable = settings.minimize;
+        //drag
+        dragable = settings.drag;
+        //...
+    };
+
+    //init
+    function wrapper(settings) {
+        settings = validateSettings(settings);
+        window.localStorage.setItem('chat-config', JSON.stringify(settings));
+        wrapper.setConfig(settings);
+        wrapper.configurate(settings);
+        wrapper.toggle();
         chat.appendTo('body');
     }
 
@@ -66,6 +176,8 @@
     wrapper.clearChat = function () {
         messageArea.html('');
     };
+
+
     //getter & setters to cb function
     wrapper.register = function (cb) {
         if (cb) register = cb;
@@ -86,6 +198,10 @@
 
     //inner wrappers
     function _register(name) {
+        window.localStorage.setItem('chat-login', name);
+        if (isHide) {
+            wrapper.toggle();
+        }
         if (!isRegistred) {
             register(name);
             isRegistred = true;
@@ -113,6 +229,7 @@
     }
 
     function _exit() {
+        window.localStorage.removeItem('chat-login');
         messageArea.html("");
         compLabel.html("");
 
@@ -147,34 +264,27 @@
     });
 
 
-    wrapper.toggle = function () {
-        if (!isHide) {
-            isHide = true;
-            messageArea.hide('fast');
-            footer.hide('fast');
-            btnHide.hide('fast');
-            btnExit.hide('fast');
-        } else {
-            isHide = false;
-            messageArea.show('fast');
-            footer.show('fast');
-            btnHide.show('fast');
-            btnExit.show('fast');
-            input.focus();
-        }
-    };
-
     chatLabel.click(function () {
         wrapper.toggle();
     });
     btnHide.click(function () {
-        _leave();
+        if (isRegistred) _leave();
         wrapper.toggle();
     });
-
     btnExit.click(function () {
         wrapper.toggle();
         _exit();
+    });
+    btnSettings.click(function () {
+        messageArea.toggle('fast');
+        chatSettings.toggle('fast');
+    });
+
+    applyBtn.click(function () {
+        wrapper.configurate(wrapper.getConfig());
+    });
+    defaultBtn.click(function () {
+        wrapper.setConfig(JSON.parse(window.localStorage.getItem('chat-config')))
     });
 
     wrapper.label = function (str) {

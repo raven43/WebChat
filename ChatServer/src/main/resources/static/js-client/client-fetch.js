@@ -1,7 +1,7 @@
 var id;
 var listener;
 
-wrapper('Fetch chat');
+wrapper(window.chatConfig);
 wrapper.register(function (name) {
 
     fetch('http://localhost:8080/chat/register', {

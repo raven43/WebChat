@@ -1,10 +1,14 @@
-var stompClient = null;
+;"use strict";
+let stompClient = null;
 
-wrapper('Some chat');
+//TODO full ES6 and "use strict" support
+
+wrapper(window.chatConfig);
+
 wrapper.register(function (name) {
-    var socket = new SockJS("http://localhost:8080/ws");
+    let socket = new SockJS("http://localhost:8080/ws");
     stompClient = Stomp.over(socket);
-    var headers = {
+    let headers = {
         'name': name,
         'role': 'CLIENT'
     };
@@ -12,7 +16,7 @@ wrapper.register(function (name) {
         function (frame) {
             console.log('Connected: ' + frame);
             stompClient.subscribe('/private/reply', function (message) {
-                var parsedMessage = {
+                let parsedMessage = {
                     name: JSON.parse(message.body).name,
                     role: JSON.parse(message.body).role,
                     content: JSON.parse(message.body).content

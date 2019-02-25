@@ -81,7 +81,24 @@ public class ChatRestController {
         try {
             if (!repo.getUserMap().containsKey(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             if (!messageRepo.hasStorage(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            repo.getUser(id).active();
             return new ResponseEntity<>(messageRepo.getMessages(id), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("HTTP get message error", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //test connection
+    @GetMapping("/{id}/test")
+    public ResponseEntity<List<ChatMessage>> test(
+            @PathVariable Long id
+    ) {
+        try {
+            if (!repo.getUserMap().containsKey(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            if (!messageRepo.hasStorage(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            repo.getUser(id).active();
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             log.error("HTTP get message error", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
