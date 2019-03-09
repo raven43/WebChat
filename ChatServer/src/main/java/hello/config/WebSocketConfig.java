@@ -54,7 +54,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 //"activate" user. There is some delay btw connecting and subscribing to personal channel
                 service.activateUser(Long.valueOf(event.getUser().getName()));
         } catch (Exception e) {
-            log.warn("Incorrect subscribe " + e.getMessage());
+            log.warn("Incorrect subscribe ", e);
         }
     }
 

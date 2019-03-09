@@ -91,14 +91,18 @@ public class ChatRestController {
 
     //test connection
     @GetMapping("/{id}/test")
-    public ResponseEntity<List<ChatMessage>> test(
+    public ResponseEntity<String> test(
             @PathVariable Long id
     ) {
         try {
             if (!repo.getUserMap().containsKey(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             if (!messageRepo.hasStorage(id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             repo.getUser(id).active();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>("{" +
+                    "\"id\":" + id + "," +
+                    "\"name\":\"" + repo.getUser(id).getName() + "\"," +
+                    "\"companion\":\"" + (repo.getUser(id).isFree() ? "null" : repo.getUser(id).getChat().getAgent().getName()) + "\"" +
+                    "}", HttpStatus.OK);
         } catch (Exception e) {
             log.error("HTTP get message error", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

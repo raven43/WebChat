@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Config</title>
+    <script src="http://localhost:8080/webjars/jquery/jquery.min.js"></script>
+
+    <style>
+        .config-container {
+            box-sizing: border-box;
+            border: 2px solid black;
+            background: white;
+            width: 40rem;
+            margin: auto;
+            padding: 1rem;
+        }
+
+        .config-header {
+            margin: 1rem 0;
+        }
+
+        .config-group-header {
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+
+        .config-el, .config-group {
+            margin: 0.5rem 0;
+        }
+
+        ul.config-el {
+            list-style-type: none;
+        }
+
+        .config-input, .config-label {
+            box-sizing: border-box;
+            padding: 3px;
+            margin: 3px 0;
+            display: inline-block;
+        }
+
+        .config-input {
+            border: 2px solid #3a3a3a;
+            border-radius: 5px;
+        }
+
+        .config-label {
+            width: 10rem;
+        }
+
+        .config-button, .config-json {
+            box-sizing: border-box;
+            border: 2px solid black;
+            width: 100%;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+        }
+    </style>
+
+</head>
+<body>
+
+<form class="config-container">
+    <h1 class="config-header">Chat Configurator</h1>
+    <div class="config-group">
+        <h3 class="config-group-header">Network</h3>
+        <div>
+            <div class="config-el">
+                <label class="config-label" for="url-input">URL of chat server</label>
+                <input class="config-input" id="url-input" type="url">
+            </div>
+            <div class="config-el">
+                <label class="config-label" for="connection-type">Allow to drag</label>
+                <select id="connection-type" class="config-input">
+                    <option class="config-input" value="ws">Web Socket</option>
+                    <option class="config-input" value="xhr">XMLHttpRequest</option>
+                    <option class="config-input" value="fetch">Fetch</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="config-group">
+        <h3 class="config-group-header">Chat defaults</h3>
+
+        <div>
+            <div class="config-el">
+                <label class="config-label" for="label-input">Chat label</label>
+                <input id="label-input" class="config-input" type="text">
+            </div>
+            <div class="config-el">
+                <label class="config-label" for="pos-select">Position</label>
+                <select id="pos-select" class="config-input">
+                    <option class="config-input" value="right">right</option>
+                    <option class="config-input" value="left">left</option>
+                </select>
+            </div>
+            <div class="config-el">
+                <label class="config-label" for="min-check">Allow to minimize</label>
+                <input class="config-input" id="min-check" type="checkbox">
+            </div>
+            <div class="config-el">
+                <label class="config-label" for="drag-check">Allow to drag</label>
+                <input class="config-input" id="drag-check" type="checkbox">
+            </div>
+            <div class="config-el">
+            </div>
+            <div class="config-el">
+                <label class="config-label" for="custom-check">Allow to customize</label>
+                <input class="config-input" id="custom-check" type="checkbox">
+            </div>
+        </div>
+    </div>
+    <div class="config-group">
+        <h3 class="config-group-header">CSS for chat parts</h3>
+        <div>
+            <div class="config-el">
+                <label for="css-body" class="config-label">Chat body</label>
+                <input id="css-body" class="config-input" type="text">
+            </div>
+            <ul class="config-el">
+                <li class="config-el">
+                    <label for="css-header" class="config-label">Chat header</label>
+                    <input id="css-header" class="config-input" type="text">
+                </li>
+                <li class="config-el">
+                    <ul class="config-el">
+                        <li class="config-el">
+                            <label for="css-label" class="config-label">Chat label</label>
+                            <input id="css-label" class="config-input" type="text">
+                        </li>
+                        <li class="config-el">
+                            <label for="css-comp-label" class="config-label">Companion label</label>
+                            <input id="css-comp-label" class="config-input" type="text">
+                        </li>
+                    </ul>
+                </li>
+                <li class="config-el">
+                    <label for="css-settings" class="config-label">Chat Footer</label>
+                    <input id="css-settings" class="config-input" type="text">
+                </li>
+                <li class="config-el">
+                    <ul class="config-el">
+                        <li class="config-el">
+                            <label for="css-settings-label" class="config-label">Label</label>
+                            <input id="css-settings-label" class="config-input" type="text">
+                        </li>
+                        <li class="config-el">
+                            <label for="css-settings-input" class="config-label">Input</label>
+                            <input id="css-settings-input" class="config-input" type="text">
+                        </li>
+                    </ul>
+                </li>
+                <li class="config-el">
+                    <label for="css-history" class="config-label">Chat history</label>
+                    <input id="css-history" class="config-input" type="text">
+                </li>
+                <li class="config-el">
+                    <ul class="config-el">
+                        <li class="config-el">
+                            <label for="css-serv-message" class="config-label">Server Message</label>
+                            <input id="css-serv-message" class="config-input" type="text">
+                        </li>
+                        <li class="config-el">
+                            <label for="css-inc-message" class="config-label">Incoming Message</label>
+                            <input id="css-inc-message" class="config-input" type="text">
+                        </li>
+                        <li class="config-el">
+                            <label for="css-out-message" class="config-label">Outgoing Message</label>
+                            <input id="css-out-message" class="config-input" type="text">
+                        </li>
+                    </ul>
+                </li>
+                <li class="config-el">
+                    <label for="css-footer" class="config-label">Chat Footer</label>
+                    <input id="css-footer" class="config-input" type="text">
+                </li>
+                <li class="config-el">
+                    <ul class="config-el">
+                        <li class="config-el">
+                            <label for="css-message-input" class="config-label">Message input</label>
+                            <input id="css-message-input" class="config-input" type="text">
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <button id="btn" class="config-button">Get JSON configuration</button>
+
+    <textarea id="json-config" class="config-json" rows="20" readonly>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </textarea>
+
+</form>
+
+<script>
+
+    $('.config-group-header').each(function () {
+        $(this.nextElementSibling).toggle();
+    });
+    $('.config-group-header').click(function () {
+
+        $(this.nextElementSibling).toggle('fast');
+    });
+    $('#json-config').toggle();
+
+
+    $('#btn')[0].onclick = function (e) {
+        e.preventDefault();
+        let config = {};
+
+        let network = {};
+        network.url = $('#url-input').val() || 'http://localhost:8080';
+        network.type = $('#connection-type').val();
+
+        let settings = {};
+        settings.label = $('#label-input').val() || 'WebChat';
+        settings.position = $('#pos-select').val();
+        settings.drag = $('#drag-check')[0].checked;
+        settings.minimize = $('#min-check')[0].checked;
+        settings.customize = $('#custom-check')[0].checked;
+
+        let css = {};
+
+        css.body = $('#css-body').val() || undefined;
+        css.header = $('#css-header').val() || undefined;
+        css.settings = $('#css-settings').val() || undefined;
+        css.history = $('#css-history').val() || undefined;
+        css.footer = $('#css-footer').val() || undefined;
+        css.label = $('#css-label').val() || undefined;
+        css.complabel = $('#css-comp-label').val() || undefined;
+        css.settingslabel = $('#css-settings-label').val() || undefined;
+        css.settingsinput = $('#css-settings-input').val() || undefined;
+        css.servmessage = $('#css-serv-message').val() || undefined;
+        css.incmessage = $('#css-inc-message').val() || undefined;
+        css.outmessage = $('#css-out-message').val() || undefined;
+        css.messageinput = $('#css-message-input').val() || undefined;
+
+        config.network = network;
+        config.settings = settings;
+
+        config.css = css;
+
+        $('#json-config').text(JSON.stringify(config, null, 2)).show('fast');
+    }
+</script>
+
+</body>
+</html>

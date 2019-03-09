@@ -11,6 +11,7 @@
     <modules>
         <module>ChatServer</module>
         <module>ChatClient</module>
+        <module>BotAgent</module>
 
     </modules>
     <dependencies>

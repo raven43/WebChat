@@ -162,8 +162,8 @@ public class MessageService {
             if (!client.isFree() && client.getRole().equals(Role.CLIENT)) {
                 log.info("Stop chat btw agent [" + client.getChat().getAgent().getName() +
                         "] and client [" + client.getName() + "]: Client leave");
-                ChatUser orphan = client.getChat().breakChat(client);
                 repo.getChats().remove(client.getChat().getId());
+                ChatUser orphan = client.getChat().breakChat(client);
                 send(orphan, new ChatMessage("You client leave the chat"));
                 findCompanion(orphan);
             }

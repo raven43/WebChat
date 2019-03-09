@@ -39,7 +39,6 @@ public class MainController {
             @Payload ComandMessage message,
             Principal principal
     ) {
-
         switch (message.getType()) {
             case LEAVE:
                 service.handleLeave(Long.valueOf(principal.getName()));
