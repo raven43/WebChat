@@ -1,11 +1,22 @@
-window.startChat = function (config) {
+window.appendChat = function (config) {
+
+    config = new ChatConfig(config);
 
     let url = config.network.url;
     let id;
     let listener;
 
+    let wrapper = new ChatWrap(config.settings, config.css);
 
-    wrapper.register(function (name) {
+    wrapper.register(register);
+
+    wrapper.exit(exit);
+
+    wrapper.leave(leave);
+
+    wrapper.send(send);
+
+    function register(name) {
 
         let xhr = new XMLHttpRequest();
         xhr.open('POST', url + '/chat/register', true);
@@ -19,7 +30,7 @@ window.startChat = function (config) {
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.send('role=CLIENT&name=' + encodeURIComponent(name));
 
-    });
+    }
 
     function startListener(ms) {
 
@@ -41,7 +52,7 @@ window.startChat = function (config) {
         console.log('Short polling started: ' + listener);
     }
 
-    wrapper.exit(function () {
+    function exit() {
         console.log('Short polling stopped: ' + listener);
         clearInterval(listener);
         let xhr = new XMLHttpRequest();
@@ -49,22 +60,22 @@ window.startChat = function (config) {
         xhr.send();
         console.log("Disconnected");
         id = undefined;
-    });
+    }
 
-    wrapper.send(function (message) {
+    function send(message) {
         let xhr = new XMLHttpRequest();
         xhr.open('POST', url + '/chat/' + id, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.send('message=' + encodeURIComponent(message.content));
-    });
+    }
 
-    wrapper.leave(function () {
+    function leave() {
         let xhr = new XMLHttpRequest();
         xhr.open('POST', url + '/chat/' + id + '/leave', true);
         xhr.send();
         console.log("Leave");
-    });
+    }
 
-    wrapper(config.settings, config.css);
+    document.body.appendChild(wrapper.getHtml());
 
 };

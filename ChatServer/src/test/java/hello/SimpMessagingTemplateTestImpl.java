@@ -5,12 +5,10 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.util.logging.SimpleFormatter;
-
 public class SimpMessagingTemplateTestImpl extends SimpMessagingTemplate {
 
     public SimpMessagingTemplateTestImpl() {
-        super(new MessageChannel(){
+        super(new MessageChannel() {
             @Override
             public boolean send(Message<?> message) {
                 return true;

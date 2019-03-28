@@ -1,3 +1,4 @@
+;"use strict";
 (() => {
 
 //  get config if exists
@@ -37,7 +38,7 @@
                 .then((config) => {
                     cnf = config;
                 })
-                .catch((reason) => reject(reason))
+                //.catch((reason) => reject(reason))
                 .finally(() => {
                     resolve(cnf);
                 })
@@ -62,37 +63,37 @@
             return !window.$ ? loadScript(url + '/webjars/jquery/jquery.min.js') : mock();
         })
         .then(() => {
-            return loadScript(url + '/js-client/chat-wrapper.js');
+            return loadScript(url + '/client/chat-wrapper.js');
         })
         .then(() => {
             console.log('we got wrap');
-            return loadCss(url + '/js-client/wrap.css')
+            return loadCss(url + '/client/wrap.css')
         })
         .then(() => {
             console.log('we got css');
             switch (cnf.network.type) {
                 case 'xhr':
-                    return loadScript(url + '/js-client/client-xhr.js');
+                    return loadScript(url + '/client/client-xhr.js');
                 case 'fetch':
-                    return loadScript(url + '/js-client/client-fetch.js');
+                    return loadScript(url + '/client/client-fetch.js');
                 default:
-                    return loadScript(url + '/js-client/client-ws.js');
+                    return loadScript(url + '/client/client-ws.js');
             }
         })
         .then(() => cnf.network.type === 'ws' ? (!window.SockJS ? loadScript(url + '/webjars/sockjs-client/sockjs.min.js') : mock()) : mock())
         .then(() => cnf.network.type === 'ws' ? (!window.Stomp ? loadScript(url + '/webjars/stomp-websocket/stomp.min.js') : mock()) : mock())
         .then(() => {
             console.log('we got client');
-            console.log('here chat must start');
-            startChat(cnf);
+            console.log('here chat must starts');
+            appendChat(cnf);
         })
-        .catch(smth => console.log(smth));
-
+        .catch(smth => console.error(smth));
 
     function validateConfig(config) {
         if (!config) config = {};
         if (!config.network) config.network = {};
         if (!config.network.url) config.network.url = 'http://localhost:8080';
+        if (!config.network.type) config.network.type = 'ws';
         return config;
     }
 })();

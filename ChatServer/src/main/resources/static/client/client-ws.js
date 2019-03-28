@@ -1,10 +1,23 @@
-;"use strict";
-window.startChat = function (config) {
+;window.appendChat = function (config) {
+
+    config = new ChatConfig(config);
+
+    console.log(JSON.stringify(config, null, 3));
 
     let url = config.network.url;
     let stompClient = null;
 
-    wrapper.register(function (name) {
+    let wrapper = new ChatWrap(config.settings, config.css);
+
+    wrapper.register(register);
+
+    wrapper.exit(exit);
+
+    wrapper.leave(leave);
+
+    wrapper.send(send);
+
+    function register(name) {
         let socket = new SockJS(url + "/ws");
         stompClient = Stomp.over(socket);
         let headers = {
@@ -24,36 +37,24 @@ window.startChat = function (config) {
                 });
             }
         );
-    });
-    wrapper.exit(function () {
+    }
+
+    function exit() {
         if (stompClient !== null) {
             stompClient.disconnect();
         }
         console.log("Disconnected");
-    });
-    wrapper.send(function (message) {
+    }
+
+    function send(message) {
         stompClient.send("/message", {}, JSON.stringify(message));
-    });
-    wrapper.leave(function () {
+    }
+
+    function leave() {
         stompClient.send("/command", {}, JSON.stringify({
             'type': 'LEAVE'
         }));
-    });
+    }
 
-    wrapper(config.settings, config.css);
+    document.body.appendChild(wrapper.getHtml());
 };
-
-
-// fetch("/config.json").then(function (response) {
-//     return response.json();
-// })
-//     .then(function (cnf) {
-//         console.log(cnf);
-//         window.chatConf = cnf;
-//     })
-//     .catch(function (reason) {
-//         console.log(reason);
-//     })
-//     .finally(function () {
-//         wrapper(window.chatConf);
-//     });

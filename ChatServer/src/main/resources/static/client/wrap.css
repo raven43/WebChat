@@ -105,19 +105,19 @@
     margin: 5px;
     border-radius: 5px;
     padding: 5px;
-    word-break: break-all;
+    word-break: break-word;
 }
 
 .incoming {
     background-color: #87CEEB;
     float: left;
-    margin-right: 40%;
+    margin-right: 50%;
 }
 
 .outgoing {
     background-color: lightgreen;
     float: right;
-    margin-left: 40%;
+    margin-left: 50%;
 }
 
 .server {

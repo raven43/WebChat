@@ -1,10 +1,22 @@
-;window.startChat = function (config) {
+;window.appendChat = function (config) {
+
+    config = new ChatConfig(config);
 
     let url = config.network.url;
     let id;
     let listener;
 
-    wrapper.register(function (name) {
+    let wrapper = new ChatWrap(config.settings, config.css);
+
+    wrapper.register(register);
+
+    wrapper.exit(exit);
+
+    wrapper.leave(leave);
+
+    wrapper.send(send);
+
+    function register(name) {
 
         fetch(url + '/chat/register', {
             method: 'POST',
@@ -22,7 +34,7 @@
                 startListener(250);
             })
             .catch(console.log);
-    });
+    }
 
     function startListener(ms) {
         listener = setInterval(function () {
@@ -44,13 +56,13 @@
         }, ms);
     }
 
-    wrapper.exit(function () {
+    function exit() {
         clearInterval(listener);
         fetch(url + '/chat/' + id, {method: 'DELETE'}).catch(console.log);
         console.log("Disconnected");
-    });
+    }
 
-    wrapper.send(function (message) {
+    function send(message) {
         fetch(url + '/chat/' + id, {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -59,14 +71,14 @@
             .catch(console.error);
         console.log("Send message " + message);
 
-    });
+    }
 
-    wrapper.leave(function () {
+    function leave() {
         fetch(url + '/chat/' + id + '/leave', {method: 'POST'})
             .catch(console.log);
         console.log("Leave");
-    });
+    }
 
-    wrapper(config.settings, config.css);
 
+    document.body.appendChild(wrapper.getHtml());
 };
